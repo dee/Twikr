@@ -59,10 +59,15 @@ void Engine::setSysUsesLightTheme(bool set)
 
 QColor Engine::getAccentColor(bool active)
 {
-    // QString key = active ? "AccentColor" : "AccentColorInactive";
-    // getDWord(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\DWM", key);
-    // QColor color;
-    return QColor::from
+    QString key = active ? "AccentColor" : "AccentColorInactive";
+    unsigned int regValue = getDWord(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\DWM", key);
+    QRgb r{regValue};
+    return QColor::fromRgb(r);
+}
+
+void Engine::setAccentColor(QColor color, bool active)
+{
+    qDebug() << "Setting color:" << color;
 }
 
 int Engine::getDWord(HKEY handle, const QString& path, const QString& name)

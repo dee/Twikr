@@ -29,5 +29,6 @@ public slots:
 private:
     Ui::MainWidget *ui;
     Engine engine;
+    QColor active, inactive;
 };
 #endif // MAINWIDGET_H

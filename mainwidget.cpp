@@ -40,6 +40,9 @@ MainWidget::MainWidget(QWidget *parent)
 
     ui->chkTransparency->setChecked(engine.isTransparencyEnabled());
 
+    active = engine.getAccentColor(true);
+    inactive = engine.getAccentColor(false);
+
     connect(ui->rbAppLight, &QRadioButton::toggled, this, &MainWidget::handleAppTheme);
     connect(ui->rbAppDark, &QRadioButton::toggled, this, &MainWidget::handleAppTheme);
     connect(ui->rbSysLight, &QRadioButton::toggled, this, &MainWidget::handleSystemTheme);
@@ -65,12 +68,20 @@ void MainWidget::on_chkTransparency_stateChanged(int value)
 
 void MainWidget::on_btnActive_clicked()
 {
-    // auto color = QColorDialog::getColor(Qt::white, this);
+    auto color = QColorDialog::getColor(active, this, tr("Pick active accent color"));
+    if (color.isValid())
+    {
+        engine.setAccentColor(color, true);
+    }
 }
 
 void MainWidget::on_btnInactive_clicked()
 {
-
+    auto color = QColorDialog::getColor(inactive, this, tr("Pick inactive accent color"));
+    if (color.isValid())
+    {
+        engine.setAccentColor(color, false);
+    }
 }
 
 void MainWidget::handleAppTheme()
