@@ -28,6 +28,7 @@ public:
 private:
     int getDWord(HKEY handle, const QString& path, const QString& name);
     void setOrCreateDWord(HKEY handle, const QString& path, const QString& name, unsigned int value);
+    QString getColorKey(bool active);
 };
 
 #endif // ENGINE_H

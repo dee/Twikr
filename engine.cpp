@@ -3,71 +3,70 @@
 #include <windows.h>
 #include <QDebug>
 
-Engine::Engine() {}
+constexpr const char* DwmPath{"SOFTWARE\\Microsoft\\Windows\\DWM"};
+constexpr const char* PersonalizePath{"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"};
+
+Engine::Engine() {};
 
 bool Engine::isColorPrevalenceEnabled()
 {
-    return getDWord(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\DWM", "ColorPrevalence") == 1;
+    return getDWord(HKEY_CURRENT_USER, DwmPath, "ColorPrevalence") == 1;
 }
 
 void Engine::enableColorPrevalence(bool enable)
 {
     DWORD value = enable ? 1: 0;
-    setOrCreateDWord(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\DWM", "ColorPrevalence",
+    setOrCreateDWord(HKEY_CURRENT_USER, DwmPath, "ColorPrevalence",
                      value);
 }
 
 bool Engine::isTransparencyEnabled()
 {
-    return getDWord(HKEY_CURRENT_USER,
-                    "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
-                    "EnableTransparency");
+    return getDWord(HKEY_CURRENT_USER, PersonalizePath, "EnableTransparency");
 }
 
 void Engine::enableTransparency(bool enable)
 {
     DWORD value = enable ? 1: 0;
-    setOrCreateDWord(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
-                     "EnableTransparency", value);
+    setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, "EnableTransparency", value);
 }
 
 bool Engine::appsUseLightTheme()
 {
-    return getDWord(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
-                    "AppsUseLightTheme") == 1;
+    return getDWord(HKEY_CURRENT_USER, PersonalizePath, "AppsUseLightTheme") == 1;
 }
 
 void Engine::setAppsLightTheme(bool set)
 {
     DWORD value = set ? 1: 0;
-    setOrCreateDWord(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
-                     "AppsUseLightTheme", value);
+    setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, "AppsUseLightTheme", value);
 }
 
 bool Engine::systemUsesLightTheme()
 {
-    return getDWord(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
-                    "SystemUsesLightTheme") == 1;
+    return getDWord(HKEY_CURRENT_USER, PersonalizePath, "SystemUsesLightTheme") == 1;
 }
 
 void Engine::setSysUsesLightTheme(bool set)
 {
     DWORD value = set ? 1: 0;
-    setOrCreateDWord(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
-                     "SystemUsesLightTheme", value);
+    setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, "SystemUsesLightTheme", value);
 }
 
 QColor Engine::getAccentColor(bool active)
 {
-    QString key = active ? "AccentColor" : "AccentColorInactive";
-    unsigned int regValue = getDWord(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\DWM", key);
+    QString key = getColorKey(active);
+    unsigned int regValue = getDWord(HKEY_CURRENT_USER, DwmPath, key);
     QRgb r{regValue};
     return QColor::fromRgb(r);
 }
 
 void Engine::setAccentColor(QColor color, bool active)
 {
-    qDebug() << "Setting color:" << color;
+    QString key = getColorKey(active);
+
+    unsigned int dwColor{color.rgb()};
+    setOrCreateDWord(HKEY_CURRENT_USER, DwmPath, key, dwColor);
 }
 
 int Engine::getDWord(HKEY handle, const QString& path, const QString& name)
@@ -101,4 +100,9 @@ void Engine::setOrCreateDWord(HKEY handle, const QString& path, const QString& n
     {
         qDebug() << "Error saving value";
     }
+}
+
+QString Engine::getColorKey(bool active)
+{
+    return active ? "AccentColor" : "AccentColorInactive";
 }
