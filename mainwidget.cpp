@@ -57,8 +57,11 @@ MainWidget::~MainWidget()
 void MainWidget::on_chkEnabled_stateChanged(int value)
 {
     // qDebug() << "ColorPrevalence state changed, value =" << value;
-    ui->btnActive->setEnabled(value != 0);
-    ui->btnInactive->setEnabled(value != 0);
+    bool enable = (value != 0);
+
+    ui->btnActive->setEnabled(enable);
+    ui->btnInactive->setEnabled(enable);
+    engine.enableColorPrevalence(enable);
 }
 
 void MainWidget::on_chkTransparency_stateChanged(int value)
