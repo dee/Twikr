@@ -57,15 +57,16 @@ QColor Engine::getAccentColor(bool active)
 {
     QString key = getColorKey(active);
     unsigned int regValue = getDWord(HKEY_CURRENT_USER, DwmPath, key);
-    QRgb r{regValue};
-    return QColor::fromRgb(r);
+    // this value is a 32-bit abgr, so we have to convert
+    QColor color{QRgb(regValue)};
+    return QColor::fromRgb(color.blue(), color.green(), color.red(), color.alpha());
 }
 
 void Engine::setAccentColor(QColor color, bool active)
 {
     QString key = getColorKey(active);
-
-    unsigned int dwColor{color.rgb()};
+    QRgb r = qRgba(color.blue(), color.green(), color.red(), color.alpha());
+    unsigned int dwColor{r};
     setOrCreateDWord(HKEY_CURRENT_USER, DwmPath, key, dwColor);
 }
 
