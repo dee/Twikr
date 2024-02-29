@@ -10,7 +10,8 @@ Engine::Engine() {};
 
 bool Engine::isColorPrevalenceEnabled()
 {
-    return getDWord(HKEY_CURRENT_USER, DwmPath, "ColorPrevalence") == 1;
+    return getDWord(HKEY_CURRENT_USER, DwmPath, "ColorPrevalence") == 1 ||
+        getDWord(HKEY_CURRENT_USER, PersonalizePath, "ColorPrevalence") == 1;
 }
 
 void Engine::enableColorPrevalence(bool enable)
@@ -18,17 +19,21 @@ void Engine::enableColorPrevalence(bool enable)
     DWORD value = enable ? 1: 0;
     setOrCreateDWord(HKEY_CURRENT_USER, DwmPath, "ColorPrevalence",
                      value);
+    setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, "ColorPrevalence",
+                     value);
 }
 
 bool Engine::isTransparencyEnabled()
 {
-    return getDWord(HKEY_CURRENT_USER, PersonalizePath, "EnableTransparency");
+    return getDWord(HKEY_CURRENT_USER, PersonalizePath, "EnableTransparency") == 1
+        /*|| getDWord(HKEY_CURRENT_USER, DwmPath, "EnableTransparency") == 1*/;
 }
 
 void Engine::enableTransparency(bool enable)
 {
     DWORD value = enable ? 1: 0;
     setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, "EnableTransparency", value);
+    //setOrCreateDWord(HKEY_CURRENT_USER, DwmPath, "EnableTransparency", value);
 }
 
 bool Engine::appsUseLightTheme()
