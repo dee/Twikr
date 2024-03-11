@@ -100,7 +100,7 @@ int Engine::getDWord(HKEY handle, const QString& path, const QString& name)
     {
         qDebug() << "Error reading registry, path =" << path << "value =" << name;
     }
-    qDebug() << "getDWord returned:" << val << "path =" << path << "value =" << name;
+    // qDebug() << "getDWord returned:" << val << "path =" << path << "value =" << name;
     return val;
 }
 

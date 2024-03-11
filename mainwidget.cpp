@@ -72,7 +72,6 @@ void MainWidget::on_chkTransparency_stateChanged(int value)
 
 void MainWidget::on_chkSmallIcons_stateChanged(int value)
 {
-    qDebug() << "State changed!";
     engine.enableSmallIcons(value != 0);
 }
 
