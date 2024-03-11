@@ -39,6 +39,7 @@ MainWidget::MainWidget(QWidget *parent)
     }
 
     ui->chkTransparency->setChecked(engine.isTransparencyEnabled());
+    ui->chkSmallIcons->setChecked(engine.areSmallIconsUsed());
 
     active = engine.getAccentColor(true);
     inactive = engine.getAccentColor(false);
@@ -67,6 +68,12 @@ void MainWidget::on_chkEnabled_stateChanged(int value)
 void MainWidget::on_chkTransparency_stateChanged(int value)
 {
     engine.enableTransparency(value != 0);
+}
+
+void MainWidget::on_chkSmallIcons_stateChanged(int value)
+{
+    qDebug() << "State changed!";
+    engine.enableSmallIcons(value != 0);
 }
 
 void MainWidget::on_btnActive_clicked()

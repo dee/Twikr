@@ -5,6 +5,7 @@
 
 constexpr const char* DwmPath{"SOFTWARE\\Microsoft\\Windows\\DWM"};
 constexpr const char* PersonalizePath{"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"};
+constexpr const char* ExplorerAdvPath{"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"};
 
 Engine::Engine() {};
 
@@ -75,6 +76,16 @@ void Engine::setAccentColor(QColor color, bool active)
     setOrCreateDWord(HKEY_CURRENT_USER, DwmPath, key, dwColor);
 }
 
+bool Engine::areSmallIconsUsed()
+{
+    return getDWord(HKEY_CURRENT_USER, ExplorerAdvPath, "TaskbarSmallIcons") != 0;
+}
+
+void Engine::enableSmallIcons(bool enable)
+{
+    setOrCreateDWord(HKEY_CURRENT_USER, ExplorerAdvPath, "TaskbarSmallIcons", enable ? 1 : 0);
+}
+
 int Engine::getDWord(HKEY handle, const QString& path, const QString& name)
 {
     DWORD val;
@@ -87,8 +98,9 @@ int Engine::getDWord(HKEY handle, const QString& path, const QString& name)
                                 &size);
     if (result != 0)
     {
-        qDebug() << "Error reading registry";
+        qDebug() << "Error reading registry, path =" << path << "value =" << name;
     }
+    qDebug() << "getDWord returned:" << val << "path =" << path << "value =" << name;
     return val;
 }
 

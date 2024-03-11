@@ -21,6 +21,7 @@ public:
 public slots:
     void on_chkEnabled_stateChanged(int);
     void on_chkTransparency_stateChanged(int);
+    void on_chkSmallIcons_stateChanged(int);
     void on_btnActive_clicked();
     void on_btnInactive_clicked();
     void handleAppTheme();

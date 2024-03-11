@@ -24,7 +24,9 @@ public:
 
     QColor getAccentColor(bool active);
     void setAccentColor(QColor color, bool active);
-
+    
+    bool areSmallIconsUsed();
+    void enableSmallIcons(bool);
 private:
     int getDWord(HKEY handle, const QString& path, const QString& name);
     void setOrCreateDWord(HKEY handle, const QString& path, const QString& name, unsigned int value);
