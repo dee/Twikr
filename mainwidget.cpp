@@ -12,11 +12,11 @@ MainWidget::MainWidget(QWidget *parent)
 
     if (engine.isColorPrevalenceEnabled())
     {
-        ui->chkEnabled->setCheckState(Qt::Checked);
+        ui->chkEnabled->setCheckState(Qt::Unchecked);
     }
     else
     {
-        ui->chkEnabled->setCheckState(Qt::Unchecked);
+        ui->chkEnabled->setCheckState(Qt::Checked);
     }
     ui->btnActive->setEnabled(ui->chkEnabled->isChecked());
     ui->btnInactive->setEnabled(ui->chkEnabled->isChecked());
