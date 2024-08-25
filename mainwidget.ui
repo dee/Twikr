@@ -17,7 +17,7 @@
    <item>
     <widget class="QGroupBox" name="grpColor">
      <property name="title">
-      <string>Color prevalence</string>
+      <string>Window titles</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">

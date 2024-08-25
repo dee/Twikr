@@ -2,13 +2,15 @@
 #define ENGINE_H
 
 #include <QColor>
+#include <QProcess>
 #include <QString>
 #include <windows.h>
 
-class Engine
+class Engine : public QObject
 {
+    Q_OBJECT
 public:
-    Engine();
+    Engine(QObject* parent);
 
     bool isColorPrevalenceEnabled();
     void enableColorPrevalence(bool enable);
@@ -27,6 +29,12 @@ public:
     
     bool areSmallIconsUsed();
     void enableSmallIcons(bool);
+
+    void restartExplorer();
+
+public slots:
+    void starterError(QProcess::ProcessError error);
+
 private:
     int getDWord(HKEY handle, const QString& path, const QString& name);
     void setOrCreateDWord(HKEY handle, const QString& path, const QString& name, unsigned int value);

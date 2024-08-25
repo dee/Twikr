@@ -2,12 +2,18 @@
 #include <QString>
 #include <windows.h>
 #include <QDebug>
+#include <QProcess>
+#include <QtGlobal>
+#include <QMessageBox>
+#include <QApplication>
 
 constexpr const char* DwmPath{"SOFTWARE\\Microsoft\\Windows\\DWM"};
 constexpr const char* PersonalizePath{"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"};
 constexpr const char* ExplorerAdvPath{"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"};
 
-Engine::Engine() {};
+Engine::Engine(QObject* parent)
+    : QObject(parent)
+{};
 
 bool Engine::isColorPrevalenceEnabled()
 {
@@ -83,7 +89,32 @@ bool Engine::areSmallIconsUsed()
 
 void Engine::enableSmallIcons(bool enable)
 {
+    auto oldValue = (getDWord(HKEY_CURRENT_USER, ExplorerAdvPath, "TaskbarSmallIcons") != 0);
     setOrCreateDWord(HKEY_CURRENT_USER, ExplorerAdvPath, "TaskbarSmallIcons", enable ? 1 : 0);
+    if (oldValue != enable)
+    {
+        restartExplorer();
+    }
+}
+
+void Engine::restartExplorer()
+{
+    QScopedPointer<QProcess> stopper(new QProcess());
+    connect(stopper.data(), SIGNAL(errorOccurred(QProcess::ProcessError)), this, SLOT(starterError(QProcess::ProcessError)));
+    stopper.data()->start("taskkill", QStringList() << "/f" << "/im" << "explorer.exe");
+    stopper.data()->waitForFinished();
+
+    auto* starter = new QProcess(this);
+    connect(starter, &QProcess::errorOccurred, this, &Engine::starterError);
+    connect(starter, qOverload<int, QProcess::ExitStatus>(&QProcess::finished),
+            starter, &QProcess::deleteLater);
+}
+
+void Engine::starterError(QProcess::ProcessError error)
+{
+    QMessageBox::warning(QApplication::activeWindow(), "Error",
+                         QString("Explorer failed to start:").arg(error),
+                         QMessageBox::Button::Ok);
 }
 
 int Engine::getDWord(HKEY handle, const QString& path, const QString& name)

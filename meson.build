@@ -1,4 +1,4 @@
-project('Twikr', 'cpp',default_options : ['cpp_std=c++11'])
+project('Twikr', 'cpp',default_options : ['cpp_std=c++14'])
 
 # Documentation: https://mesonbuild.com/Qt5-module.html
 qt5 = import('qt5')
@@ -7,7 +7,7 @@ add_global_arguments('-Wno-ignored-attributes', language : 'cpp')
 add_global_arguments('-Wno-nonportable-include-path', language : 'cpp')
 
 generated_files = qt5.preprocess(
-                            moc_headers : 'mainwidget.h',
+                            moc_headers : ['mainwidget.h', 'engine.h'],
                             ui_files : 'mainwidget.ui',
                             dependencies: [qt5dep])
 

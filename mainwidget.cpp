@@ -6,18 +6,20 @@
 MainWidget::MainWidget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::MainWidget)
+    , engine(parent)
 {
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint | /*Qt::WindowSystemMenuHint |*/ Qt::WindowCloseButtonHint);
     ui->setupUi(this);
 
     if (engine.isColorPrevalenceEnabled())
     {
-        ui->chkEnabled->setCheckState(Qt::Unchecked);
+        ui->chkEnabled->setCheckState(Qt::Checked);
     }
     else
     {
-        ui->chkEnabled->setCheckState(Qt::Checked);
+        ui->chkEnabled->setCheckState(Qt::Unchecked);
     }
+
     ui->btnActive->setEnabled(ui->chkEnabled->isChecked());
     ui->btnInactive->setEnabled(ui->chkEnabled->isChecked());
 
