@@ -100,21 +100,26 @@ void Engine::enableSmallIcons(bool enable)
 void Engine::restartExplorer()
 {
     QScopedPointer<QProcess> stopper(new QProcess());
-    connect(stopper.data(), SIGNAL(errorOccurred(QProcess::ProcessError)), this, SLOT(starterError(QProcess::ProcessError)));
+    connect(stopper.data(), SIGNAL(errorOccurred(QProcess::ProcessError)), this, SLOT(processError(QProcess::ProcessError)));
     stopper.data()->start("taskkill", QStringList() << "/f" << "/im" << "explorer.exe");
     stopper.data()->waitForFinished();
 
-    auto* starter = new QProcess(this);
-    connect(starter, &QProcess::errorOccurred, this, &Engine::starterError);
-    connect(starter, qOverload<int, QProcess::ExitStatus>(&QProcess::finished),
-            starter, &QProcess::deleteLater);
+    QProcess starter;
+    starter.setProgram("explorer.exe");
+    auto ok = starter.startDetached();
+    if (!ok)
+    {
+        QMessageBox::warning(QApplication::activeWindow(), "Error",
+             QString("Explorer failed to start: %1").arg(starter.errorString()),
+             QMessageBox::Button::Ok);
+    }
 }
 
-void Engine::starterError(QProcess::ProcessError error)
+void Engine::processError(QProcess::ProcessError error)
 {
     QMessageBox::warning(QApplication::activeWindow(), "Error",
-                         QString("Explorer failed to start:").arg(error),
-                         QMessageBox::Button::Ok);
+         QString("Taskkill process failed!"),
+         QMessageBox::Button::Ok);
 }
 
 int Engine::getDWord(HKEY handle, const QString& path, const QString& name)

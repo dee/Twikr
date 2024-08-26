@@ -33,7 +33,7 @@ public:
     void restartExplorer();
 
 public slots:
-    void starterError(QProcess::ProcessError error);
+    void processError(QProcess::ProcessError error);
 
 private:
     int getDWord(HKEY handle, const QString& path, const QString& name);
