@@ -7,9 +7,11 @@
 #include <QMessageBox>
 #include <QApplication>
 
-constexpr const char* DwmPath{"SOFTWARE\\Microsoft\\Windows\\DWM"};
-constexpr const char* PersonalizePath{"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"};
-constexpr const char* ExplorerAdvPath{"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced"};
+const QString DwmPath{"SOFTWARE\\Microsoft\\Windows\\DWM"};
+const QString CurrentVersion{"SOFTWARE\\Microsoft\\Windows\\CurrentVersion"};
+const QString PersonalizePath = CurrentVersion + "\\Themes\\Personalize";
+const QString ExplorerAdvPath{CurrentVersion + "\\Explorer\\Advanced"};
+const QString ExplorerAccent{CurrentVersion + "\\Explorer\\Accent"};
 
 Engine::Engine(QObject* parent)
     : QObject(parent)
@@ -32,15 +34,13 @@ void Engine::enableColorPrevalence(bool enable)
 
 bool Engine::isTransparencyEnabled()
 {
-    return getDWord(HKEY_CURRENT_USER, PersonalizePath, "EnableTransparency") == 1
-        /*|| getDWord(HKEY_CURRENT_USER, DwmPath, "EnableTransparency") == 1*/;
+    return getDWord(HKEY_CURRENT_USER, PersonalizePath, "EnableTransparency") == 1;
 }
 
 void Engine::enableTransparency(bool enable)
 {
     DWORD value = enable ? 1: 0;
     setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, "EnableTransparency", value);
-    //setOrCreateDWord(HKEY_CURRENT_USER, DwmPath, "EnableTransparency", value);
 }
 
 bool Engine::appsUseLightTheme()
@@ -115,6 +115,28 @@ void Engine::restartExplorer()
     }
 }
 
+QColor Engine::getTaskbarColor()
+{
+    auto buf = getBinary(HKEY_CURRENT_USER,
+                         ExplorerAccent,
+                         "AccentPalette");
+    // qDebug() << buf;
+    // qDebug() << "Length is" << buf.length();
+    return QColor(qRgba(buf[20],buf[21],buf[22],buf[23]));
+}
+
+void Engine::setTaskbarColor(QColor color)
+{
+    auto buf = getBinary(HKEY_CURRENT_USER,
+                         ExplorerAccent,
+                         "AccentPalette");
+    buf[20] = (byte)color.red();
+    buf[21] = (byte)color.green();
+    buf[22] = (byte)color.blue();
+    buf[23] = (byte)color.alpha();
+    setBinary(HKEY_CURRENT_USER, ExplorerAccent, "AccentPalette", buf);
+}
+
 void Engine::processError(QProcess::ProcessError error)
 {
     QMessageBox::warning(QApplication::activeWindow(), "Error",
@@ -154,6 +176,53 @@ void Engine::setOrCreateDWord(HKEY handle, const QString& path, const QString& n
     {
         qDebug() << "Error saving value";
     }
+}
+
+QByteArray Engine::getBinary(HKEY handle, const QString &path, const QString &name)
+{
+    QByteArray buf{255, '\0'};
+    unsigned long size = 255;
+    HKEY keyHandle;
+    if (::RegOpenKey(handle, path.toStdString().c_str(), &keyHandle) != 0)
+    {
+        qDebug() << "Failed to open" << path;
+        return QByteArray();
+    }
+
+    auto result = ::RegQueryValueEx(keyHandle,
+                                    name.toStdString().c_str(),
+                                    NULL,
+                                    NULL,
+                                    (LPBYTE)buf.data(),
+                                    &size);
+    if (result != 0)
+    {
+        qDebug() << "Error getting binary value from" << path << name;
+        qDebug() << "Return code" << result;
+        return QByteArray();
+    }
+
+    ::RegCloseKey(keyHandle);
+    buf.resize(size);
+    return buf;
+}
+
+void Engine::setBinary(HKEY handle, const QString &path, const QString &name, const QByteArray &buf)
+{
+    HKEY keyHandle;
+    if (::RegOpenKey(handle, path.toStdString().c_str(), &keyHandle) != 0)
+    {
+        qDebug() << "Failed to open" << path;
+        return;
+    }
+    auto result = ::RegSetValueEx(keyHandle, name.toStdString().c_str(), 0, REG_BINARY, (const byte*)buf.data(), buf.length());
+    if (result != 0)
+    {
+        qDebug() << "Error saving binary value to" << path << name;
+        qDebug() << "Return code" << result;
+        return;
+    }
+    ::RegCloseKey(handle);
 }
 
 QString Engine::getColorKey(bool active)

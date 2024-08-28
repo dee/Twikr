@@ -32,12 +32,19 @@ public:
 
     void restartExplorer();
 
+    QColor getTaskbarColor();
+    void setTaskbarColor(QColor color);
+
 public slots:
     void processError(QProcess::ProcessError error);
 
 private:
     int getDWord(HKEY handle, const QString& path, const QString& name);
     void setOrCreateDWord(HKEY handle, const QString& path, const QString& name, unsigned int value);
+
+    QByteArray getBinary(HKEY handle, const QString& path, const QString& name);
+    void setBinary(HKEY handle, const QString& path, const QString& name, const QByteArray& buf);
+
     QString getColorKey(bool active);
 };
 

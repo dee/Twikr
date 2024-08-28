@@ -45,6 +45,7 @@ MainWidget::MainWidget(QWidget *parent)
 
     active = engine.getAccentColor(true);
     inactive = engine.getAccentColor(false);
+    taskbarBg = engine.getTaskbarColor();
 
     connect(ui->rbAppLight, &QRadioButton::toggled, this, &MainWidget::handleAppTheme);
     connect(ui->rbAppDark, &QRadioButton::toggled, this, &MainWidget::handleAppTheme);
@@ -83,6 +84,7 @@ void MainWidget::on_btnActive_clicked()
     if (color.isValid())
     {
         engine.setAccentColor(color, true);
+        active = color;
     }
 }
 
@@ -92,6 +94,7 @@ void MainWidget::on_btnInactive_clicked()
     if (color.isValid())
     {
         engine.setAccentColor(color, false);
+        inactive = color;
     }
 }
 
@@ -103,4 +106,15 @@ void MainWidget::handleAppTheme()
 void MainWidget::handleSystemTheme()
 {
     engine.setSysUsesLightTheme(ui->rbSysLight->isChecked());
+}
+
+void MainWidget::on_btnTaskbarBg_clicked()
+{
+    auto color = QColorDialog::getColor(taskbarBg, this, tr("Pick taskbar background"));
+    if (color.isValid())
+    {
+        engine.setTaskbarColor(color);
+        taskbarBg = color;
+        engine.restartExplorer();
+    }
 }

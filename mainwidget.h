@@ -27,9 +27,11 @@ public slots:
     void handleAppTheme();
     void handleSystemTheme();
 
+    void on_btnTaskbarBg_clicked();
+
 private:
     Ui::MainWidget *ui;
     Engine engine;
-    QColor active, inactive;
+    QColor active, inactive, taskbarBg;
 };
 #endif // MAINWIDGET_H
