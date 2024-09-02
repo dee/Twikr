@@ -19,50 +19,50 @@ Engine::Engine(QObject* parent)
 
 bool Engine::isColorPrevalenceEnabled()
 {
-    return getDWord(HKEY_CURRENT_USER, DwmPath, "ColorPrevalence") == 1 ||
-        getDWord(HKEY_CURRENT_USER, PersonalizePath, "ColorPrevalence") == 1;
+    return getDWord(HKEY_CURRENT_USER, DwmPath, Constants::ColorPrevalence) == 1 ||
+        getDWord(HKEY_CURRENT_USER, PersonalizePath, Constants::ColorPrevalence) == 1;
 }
 
 void Engine::enableColorPrevalence(bool enable)
 {
     DWORD value = enable ? 1: 0;
-    setOrCreateDWord(HKEY_CURRENT_USER, DwmPath, "ColorPrevalence",
+    setOrCreateDWord(HKEY_CURRENT_USER, DwmPath, Constants::ColorPrevalence,
                      value);
-    setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, "ColorPrevalence",
+    setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, Constants::ColorPrevalence,
                      value);
 }
 
 bool Engine::isTransparencyEnabled()
 {
-    return getDWord(HKEY_CURRENT_USER, PersonalizePath, "EnableTransparency") == 1;
+    return getDWord(HKEY_CURRENT_USER, PersonalizePath, Constants::EnableTransparency) == 1;
 }
 
 void Engine::enableTransparency(bool enable)
 {
     DWORD value = enable ? 1: 0;
-    setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, "EnableTransparency", value);
+    setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, Constants::EnableTransparency, value);
 }
 
 bool Engine::appsUseLightTheme()
 {
-    return getDWord(HKEY_CURRENT_USER, PersonalizePath, "AppsUseLightTheme") == 1;
+    return getDWord(HKEY_CURRENT_USER, PersonalizePath, Constants::AppsUseLightTheme) == 1;
 }
 
 void Engine::setAppsLightTheme(bool set)
 {
     DWORD value = set ? 1: 0;
-    setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, "AppsUseLightTheme", value);
+    setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, Constants::AppsUseLightTheme, value);
 }
 
 bool Engine::systemUsesLightTheme()
 {
-    return getDWord(HKEY_CURRENT_USER, PersonalizePath, "SystemUsesLightTheme") == 1;
+    return getDWord(HKEY_CURRENT_USER, PersonalizePath, Constants::SystemUsesLightTheme) == 1;
 }
 
 void Engine::setSysUsesLightTheme(bool set)
 {
     DWORD value = set ? 1: 0;
-    setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, "SystemUsesLightTheme", value);
+    setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, Constants::SystemUsesLightTheme, value);
 }
 
 QColor Engine::getAccentColor(bool active)
@@ -84,13 +84,13 @@ void Engine::setAccentColor(QColor color, bool active)
 
 bool Engine::areSmallIconsUsed()
 {
-    return getDWord(HKEY_CURRENT_USER, ExplorerAdvPath, "TaskbarSmallIcons") != 0;
+    return getDWord(HKEY_CURRENT_USER, ExplorerAdvPath, Constants::TaskbarSmallIcons) != 0;
 }
 
 void Engine::enableSmallIcons(bool enable)
 {
-    auto oldValue = (getDWord(HKEY_CURRENT_USER, ExplorerAdvPath, "TaskbarSmallIcons") != 0);
-    setOrCreateDWord(HKEY_CURRENT_USER, ExplorerAdvPath, "TaskbarSmallIcons", enable ? 1 : 0);
+    auto oldValue = (getDWord(HKEY_CURRENT_USER, ExplorerAdvPath, Constants::TaskbarSmallIcons) != 0);
+    setOrCreateDWord(HKEY_CURRENT_USER, ExplorerAdvPath, Constants::TaskbarSmallIcons, enable ? 1 : 0);
     if (oldValue != enable)
     {
         restartExplorer();
@@ -117,9 +117,7 @@ void Engine::restartExplorer()
 
 QColor Engine::getTaskbarColor()
 {
-    auto buf = getBinary(HKEY_CURRENT_USER,
-                         ExplorerAccent,
-                         "AccentPalette");
+    auto buf = getBinary(HKEY_CURRENT_USER, ExplorerAccent, Constants::AccentPalette);
     // qDebug() << buf;
     // qDebug() << "Length is" << buf.length();
     return QColor(qRgba(buf[20],buf[21],buf[22],buf[23]));
@@ -127,14 +125,12 @@ QColor Engine::getTaskbarColor()
 
 void Engine::setTaskbarColor(QColor color)
 {
-    auto buf = getBinary(HKEY_CURRENT_USER,
-                         ExplorerAccent,
-                         "AccentPalette");
+    auto buf = getBinary(HKEY_CURRENT_USER, ExplorerAccent, Constants::AccentPalette);
     buf[20] = (byte)color.red();
     buf[21] = (byte)color.green();
     buf[22] = (byte)color.blue();
     buf[23] = (byte)color.alpha();
-    setBinary(HKEY_CURRENT_USER, ExplorerAccent, "AccentPalette", buf);
+    setBinary(HKEY_CURRENT_USER, ExplorerAccent, Constants::AccentPalette, buf);
 }
 
 void Engine::processError(QProcess::ProcessError error)
@@ -227,5 +223,5 @@ void Engine::setBinary(HKEY handle, const QString &path, const QString &name, co
 
 QString Engine::getColorKey(bool active)
 {
-    return active ? "AccentColor" : "AccentColorInactive";
+    return active ? Constants::AccentColor : Constants::AccentColorInactive;
 }

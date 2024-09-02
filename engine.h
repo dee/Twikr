@@ -6,6 +6,18 @@
 #include <QString>
 #include <windows.h>
 
+namespace Constants
+{
+    const QString ColorPrevalence = "ColorPrevalence";
+    const QString EnableTransparency = "EnableTransparency";
+    const QString AccentColor = "AccentColor";
+    const QString AccentColorInactive = "AccentColorInactive";
+    const QString AccentPalette = "AccentPalette";
+    const QString TaskbarSmallIcons = "TaskbarSmallIcons";
+    const QString AppsUseLightTheme = "AppsUseLightTheme";
+    const QString SystemUsesLightTheme = "SystemUsesLightTheme";
+}
+
 class Engine : public QObject
 {
     Q_OBJECT
