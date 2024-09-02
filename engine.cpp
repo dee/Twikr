@@ -1,11 +1,11 @@
 #include "engine.h"
-#include <QString>
-#include <windows.h>
-#include <QDebug>
-#include <QProcess>
-#include <QtGlobal>
-#include <QMessageBox>
 #include <QApplication>
+#include <QDebug>
+#include <QMessageBox>
+#include <QProcess>
+#include <QString>
+#include <QtGlobal>
+#include <windows.h>
 
 const QString DwmPath{"SOFTWARE\\Microsoft\\Windows\\DWM"};
 const QString CurrentVersion{"SOFTWARE\\Microsoft\\Windows\\CurrentVersion"};
@@ -13,23 +13,20 @@ const QString PersonalizePath = CurrentVersion + "\\Themes\\Personalize";
 const QString ExplorerAdvPath{CurrentVersion + "\\Explorer\\Advanced"};
 const QString ExplorerAccent{CurrentVersion + "\\Explorer\\Accent"};
 
-Engine::Engine(QObject* parent)
-    : QObject(parent)
-{};
+Engine::Engine(QObject *parent)
+    : QObject(parent) {};
 
 bool Engine::isColorPrevalenceEnabled()
 {
     return getDWord(HKEY_CURRENT_USER, DwmPath, Constants::ColorPrevalence) == 1 ||
-        getDWord(HKEY_CURRENT_USER, PersonalizePath, Constants::ColorPrevalence) == 1;
+           getDWord(HKEY_CURRENT_USER, PersonalizePath, Constants::ColorPrevalence) == 1;
 }
 
 void Engine::enableColorPrevalence(bool enable)
 {
-    DWORD value = enable ? 1: 0;
-    setOrCreateDWord(HKEY_CURRENT_USER, DwmPath, Constants::ColorPrevalence,
-                     value);
-    setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, Constants::ColorPrevalence,
-                     value);
+    DWORD value = enable ? 1 : 0;
+    setOrCreateDWord(HKEY_CURRENT_USER, DwmPath, Constants::ColorPrevalence, value);
+    setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, Constants::ColorPrevalence, value);
 }
 
 bool Engine::isTransparencyEnabled()
@@ -39,7 +36,7 @@ bool Engine::isTransparencyEnabled()
 
 void Engine::enableTransparency(bool enable)
 {
-    DWORD value = enable ? 1: 0;
+    DWORD value = enable ? 1 : 0;
     setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, Constants::EnableTransparency, value);
 }
 
@@ -50,7 +47,7 @@ bool Engine::appsUseLightTheme()
 
 void Engine::setAppsLightTheme(bool set)
 {
-    DWORD value = set ? 1: 0;
+    DWORD value = set ? 1 : 0;
     setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, Constants::AppsUseLightTheme, value);
 }
 
@@ -61,7 +58,7 @@ bool Engine::systemUsesLightTheme()
 
 void Engine::setSysUsesLightTheme(bool set)
 {
-    DWORD value = set ? 1: 0;
+    DWORD value = set ? 1 : 0;
     setOrCreateDWord(HKEY_CURRENT_USER, PersonalizePath, Constants::SystemUsesLightTheme, value);
 }
 
@@ -100,7 +97,8 @@ void Engine::enableSmallIcons(bool enable)
 void Engine::restartExplorer()
 {
     QScopedPointer<QProcess> stopper(new QProcess());
-    connect(stopper.data(), SIGNAL(errorOccurred(QProcess::ProcessError)), this, SLOT(processError(QProcess::ProcessError)));
+    connect(stopper.data(), SIGNAL(errorOccurred(QProcess::ProcessError)), this,
+            SLOT(processError(QProcess::ProcessError)));
     stopper.data()->start("taskkill", QStringList() << "/f" << "/im" << "explorer.exe");
     stopper.data()->waitForFinished();
 
@@ -110,46 +108,44 @@ void Engine::restartExplorer()
     if (!ok)
     {
         QMessageBox::warning(QApplication::activeWindow(), "Error",
-             QString("Explorer failed to start: %1").arg(starter.errorString()),
-             QMessageBox::Button::Ok);
+                             QString("Explorer failed to start: %1").arg(starter.errorString()),
+                             QMessageBox::Button::Ok);
     }
 }
 
 QColor Engine::getTaskbarColor()
 {
     auto buf = getBinary(HKEY_CURRENT_USER, ExplorerAccent, Constants::AccentPalette);
-    // qDebug() << buf;
-    // qDebug() << "Length is" << buf.length();
-    return QColor(qRgba(buf[20],buf[21],buf[22],buf[23]));
+    return getPaletteColor(buf, 20);
 }
 
 void Engine::setTaskbarColor(QColor color)
 {
     auto buf = getBinary(HKEY_CURRENT_USER, ExplorerAccent, Constants::AccentPalette);
-    buf[20] = (byte)color.red();
-    buf[21] = (byte)color.green();
-    buf[22] = (byte)color.blue();
-    buf[23] = (byte)color.alpha();
+
+    // 4 - underline for icons
+    // 8 - start icon highlight
+
+    setPaletteColor(buf, 16, color);    // TODO: separate button for menu bg
+    setPaletteColor(buf, 20, color);    // taskbar bg
+
+    // other entities seem to be ignored
+
     setBinary(HKEY_CURRENT_USER, ExplorerAccent, Constants::AccentPalette, buf);
 }
 
 void Engine::processError(QProcess::ProcessError error)
 {
-    QMessageBox::warning(QApplication::activeWindow(), "Error",
-         QString("Taskkill process failed!"),
-         QMessageBox::Button::Ok);
+    QMessageBox::warning(QApplication::activeWindow(), "Error", QString("Taskkill process failed!"),
+                         QMessageBox::Button::Ok);
 }
 
-int Engine::getDWord(HKEY handle, const QString& path, const QString& name)
+int Engine::getDWord(HKEY handle, const QString &path, const QString &name)
 {
     DWORD val;
     unsigned long size{sizeof(DWORD)};
-    auto result = ::RegGetValue(handle, path.toStdString().c_str(),
-                                name.toStdString().c_str(),
-                                RRF_RT_DWORD,
-                                nullptr,
-                                &val,
-                                &size);
+    auto result = ::RegGetValue(handle, path.toStdString().c_str(), name.toStdString().c_str(), RRF_RT_DWORD, nullptr,
+                                &val, &size);
     if (result != 0)
     {
         qDebug() << "Error reading registry, path =" << path << "value =" << name;
@@ -158,16 +154,12 @@ int Engine::getDWord(HKEY handle, const QString& path, const QString& name)
     return val;
 }
 
-void Engine::setOrCreateDWord(HKEY handle, const QString& path, const QString& name, unsigned int value)
+void Engine::setOrCreateDWord(HKEY handle, const QString &path, const QString &name, unsigned int value)
 {
     DWORD val{value};
     unsigned int size{sizeof(val)};
-    auto result = ::RegSetKeyValue(handle,
-                     path.toStdString().c_str(),
-                     name.toStdString().c_str(),
-                     REG_DWORD,
-                     &val,
-                     size);
+    auto result =
+        ::RegSetKeyValue(handle, path.toStdString().c_str(), name.toStdString().c_str(), REG_DWORD, &val, size);
     if (result != 0)
     {
         qDebug() << "Error saving value";
@@ -185,12 +177,7 @@ QByteArray Engine::getBinary(HKEY handle, const QString &path, const QString &na
         return QByteArray();
     }
 
-    auto result = ::RegQueryValueEx(keyHandle,
-                                    name.toStdString().c_str(),
-                                    NULL,
-                                    NULL,
-                                    (LPBYTE)buf.data(),
-                                    &size);
+    auto result = ::RegQueryValueEx(keyHandle, name.toStdString().c_str(), NULL, NULL, (LPBYTE)buf.data(), &size);
     if (result != 0)
     {
         qDebug() << "Error getting binary value from" << path << name;
@@ -211,7 +198,8 @@ void Engine::setBinary(HKEY handle, const QString &path, const QString &name, co
         qDebug() << "Failed to open" << path;
         return;
     }
-    auto result = ::RegSetValueEx(keyHandle, name.toStdString().c_str(), 0, REG_BINARY, (const byte*)buf.data(), buf.length());
+    auto result =
+        ::RegSetValueEx(keyHandle, name.toStdString().c_str(), 0, REG_BINARY, (const byte *)buf.data(), buf.length());
     if (result != 0)
     {
         qDebug() << "Error saving binary value to" << path << name;
@@ -219,6 +207,19 @@ void Engine::setBinary(HKEY handle, const QString &path, const QString &name, co
         return;
     }
     ::RegCloseKey(handle);
+}
+
+QColor Engine::getPaletteColor(QByteArray &src, ushort startIndex)
+{
+    return QColor(qRgba(src[startIndex], src[startIndex + 1], src[startIndex + 2], src[startIndex + 3]));
+}
+
+void Engine::setPaletteColor(QByteArray &src, ushort startIndex, QColor color)
+{
+    src[startIndex] = (byte)color.red();
+    src[startIndex + 1] = (byte)color.green();
+    src[startIndex + 2] = (byte)color.blue();
+    src[startIndex + 3] = (byte)color.alpha();
 }
 
 QString Engine::getColorKey(bool active)

@@ -57,6 +57,9 @@ private:
     QByteArray getBinary(HKEY handle, const QString& path, const QString& name);
     void setBinary(HKEY handle, const QString& path, const QString& name, const QByteArray& buf);
 
+    QColor getPaletteColor(QByteArray& src, ushort startIndex);
+    void setPaletteColor(QByteArray& src, ushort startIndex, QColor color);
+
     QString getColorKey(bool active);
 };
 
