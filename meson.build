@@ -7,7 +7,7 @@ add_global_arguments('-Wno-ignored-attributes', language : 'cpp')
 add_global_arguments('-Wno-nonportable-include-path', language : 'cpp')
 
 generated_files = qt5.preprocess(
-                            moc_headers : ['mainwidget.h', 'engine.h'],
+                            moc_headers : ['mainwidget.h', 'engine.h', 'colorbutton.h'],
                             ui_files : 'mainwidget.ui',
                             dependencies: [qt5dep])
 
@@ -19,6 +19,7 @@ executable('Twikr'
         , 'main.cpp'
         , 'mainwidget.cpp'
         , 'engine.cpp'
+        , 'colorbutton.cpp'
         , generated_files
         , res
         , dependencies : [qt5dep]

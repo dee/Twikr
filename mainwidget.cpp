@@ -31,6 +31,7 @@ MainWidget::MainWidget(QWidget *parent)
     {
         ui->rbAppDark->setChecked(true);
     }
+
     if (engine.systemUsesLightTheme())
     {
         ui->rbSysLight->setChecked(true);
@@ -44,8 +45,13 @@ MainWidget::MainWidget(QWidget *parent)
     ui->chkSmallIcons->setChecked(engine.areSmallIconsUsed());
 
     active = engine.getAccentColor(true);
+    ui->btnActive->setColor(active);
+
     inactive = engine.getAccentColor(false);
+    ui->btnInactive->setColor(inactive);
+
     taskbarBg = engine.getTaskbarColor();
+    ui->btnTaskbarBg->setColor(taskbarBg);
 
     connect(ui->rbAppLight, &QRadioButton::toggled, this, &MainWidget::handleAppTheme);
     connect(ui->rbAppDark, &QRadioButton::toggled, this, &MainWidget::handleAppTheme);
@@ -85,6 +91,7 @@ void MainWidget::on_btnActive_clicked()
     {
         engine.setAccentColor(color, true);
         active = color;
+        ui->btnActive->setColor(active);
     }
 }
 
@@ -95,6 +102,7 @@ void MainWidget::on_btnInactive_clicked()
     {
         engine.setAccentColor(color, false);
         inactive = color;
+        ui->btnInactive->setColor(inactive);
     }
 }
 
@@ -115,6 +123,7 @@ void MainWidget::on_btnTaskbarBg_clicked()
     {
         engine.setTaskbarColor(color);
         taskbarBg = color;
+        ui->btnTaskbarBg->setColor(taskbarBg);
         engine.restartExplorer();
     }
 }

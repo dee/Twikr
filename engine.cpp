@@ -9,7 +9,7 @@
 
 const QString DwmPath{"SOFTWARE\\Microsoft\\Windows\\DWM"};
 const QString CurrentVersion{"SOFTWARE\\Microsoft\\Windows\\CurrentVersion"};
-const QString PersonalizePath = CurrentVersion + "\\Themes\\Personalize";
+const QString PersonalizePath{CurrentVersion + "\\Themes\\Personalize"};
 const QString ExplorerAdvPath{CurrentVersion + "\\Explorer\\Advanced"};
 const QString ExplorerAccent{CurrentVersion + "\\Explorer\\Accent"};
 
