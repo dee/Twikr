@@ -3,6 +3,7 @@ project('Twikr', 'cpp', default_options : ['cpp_std=c++20'])
 # Documentation: https://mesonbuild.com/Qt5-module.html
 qt = import('qt6')
 qtdep = dependency('qt6', modules : ['Core', 'Widgets'])
+
 add_global_arguments('-Wno-ignored-attributes', language : 'cpp')
 # add_global_arguments('-Wno-nonportable-include-path', language : 'cpp')
 
@@ -25,3 +26,4 @@ executable('Twikr'
         , dependencies : [qtdep]
         , install : true
         , link_args : ['-static-libgcc', '-static-libstdc++'])
+
